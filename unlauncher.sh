@@ -22,7 +22,7 @@ selected_app=$({
 } | awk -F'\t' '!y[$0]++ && (!x[$1]++ || $4 == "false")' | fzfmenu ${name} --with-nth=2 --delimiter='\t' --no-sort)
 
 if [[ -n "${selected_app}" ]]; then
-    echo "${selected_app}" | awk '{print "\"" $0 "\""}' | xargs fre --store_name "${frequency_file}" --add
+    echo "\"${selected_app}\"" | xargs fre --store_name "${frequency_file}" --add
     exec=$(echo "${selected_app}" | cut -f 3)
     command=$([[ "$(echo "${selected_app}" | cut -f 4)" == "true" ]] && echo "alacritty -e ${SHELL} -c '${exec} && read'" || echo "${exec}")
     hyprctl dispatch exec "${command}"
