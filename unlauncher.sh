@@ -2,7 +2,7 @@
 
 name=Unlauncher
 frequency_file=~/.local/share/unlauncher/frequency
-apps_dir=/usr/share/applications
+apps_dirs=/usr/share/applications:~/.local/share/applications/
 
 parse_desktop_entry() {
     while IFS= read -r line; do
@@ -15,7 +15,7 @@ parse_desktop_entry() {
 
 selected_app=$({
     fre --store_name "${frequency_file}" --sorted
-    ls "${apps_dir}" | while IFS= read -r entry; do
+    echo "${apps_dirs}" | tr ':' '\n' | xargs -n 1 ls | while IFS= read -r entry; do
         parse_desktop_entry "${apps_dir}/${entry}"
     done
     echo $PATH | tr ':' '\n' | xargs -n 1 ls | awk '{print $0 "\t" $0 "\t" $0 "\ttrue"}'
