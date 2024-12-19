@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 name=Unlauncher
 frequency_file=~/.local/share/unlauncher/frequency
