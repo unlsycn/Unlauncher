@@ -2,7 +2,7 @@
 
 name=Unlauncher
 frequency_file=~/.local/share/unlauncher/frequency
-apps_dirs=~/.local/share/applications:/usr/share/applications
+apps_dirs=$(echo $XDG_DATA_DIRS | sed 's|:|/applications:|g;s|$|/applications|')
 parse_desktop_entry() {
     while IFS= read -r line; do
         [[ "$line" == "[Desktop Entry]" ]] && in_section=true && continue
