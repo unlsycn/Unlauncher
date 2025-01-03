@@ -15,7 +15,7 @@ parse_desktop_entry() {
 selected_app=$({
     fre --store_name "${frequency_file}" --sorted
     echo "${apps_dirs}" | tr ':' '\n' | while IFS= read -r apps_dir; do
-        ls ${apps_dir} | grep '\.desktop$' | while IFS= read -r entry; do
+        ls ${apps_dir} | rg '\.desktop$' | while IFS= read -r entry; do
             parse_desktop_entry "${apps_dir}/${entry}"
         done
     done
