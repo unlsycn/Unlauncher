@@ -2,7 +2,7 @@
 
 name=Unlauncher
 frequency_file=~/.local/share/unlauncher/frequency
-apps_dirs=$(echo $XDG_DATA_DIRS | sed 's|:|/applications:|g;s|$|/applications|')
+
 parse_desktop_entry() {
     while IFS= read -r line; do
         [[ "$line" == "[Desktop Entry]" ]] && in_section=true && continue
@@ -14,17 +14,11 @@ parse_desktop_entry() {
 
 selected_app=$({
     fre --store_name "${frequency_file}" --sorted
-    echo "${apps_dirs}" | tr ':' '\n' | while IFS= read -r apps_dir; do
-        ls ${apps_dir} | rg '\.desktop$' | while IFS= read -r entry; do
-            parse_desktop_entry "${apps_dir}/${entry}"
-        done
-    done
+    echo $XDG_DATA_DIRS | sed 's|:|/applications:|g;s|$|/applications|' | tr ':' '\n' | while read -r d; do ls $d | rg '\.desktop$' | while read -r e; do parse_desktop_entry "$d/$e"; done; done
     echo $PATH | tr ':' '\n' | xargs -n 1 ls | awk '{print $0 "\t" $0 "\t" $0 "\ttrue"}'
-} | awk -F'\t' '!y[$0]++ && (!x[$1]++ || $4 == "false")' | fzfmenu ${name} --with-nth=2 --delimiter='\t' --no-sort)
+} | awk -F'\t' '!y[$0]++ && (!x[$1]++ || $4 == "false")' | fzfmenu $name --with-nth=2 --delimiter='\t' --no-sort)
 
-if [[ -n "${selected_app}" ]]; then
-    echo "\"${selected_app}\"" | xargs fre --store_name "${frequency_file}" --add
-    exec=$(echo "${selected_app}" | cut -f 3)
-    command=$([[ "$(echo "${selected_app}" | cut -f 4)" == "true" ]] && echo "alacritty -e ${SHELL} -c '${exec} && read'" || echo "${exec}")
-    hyprctl dispatch exec "${command}"
-fi
+[[ -n "$selected_app" ]] && {
+    echo "\"$selected_app\"" | xargs fre --store_name "$frequency_file" --add
+    systemd-run --user --scope $(cut -f3 <<<"$selected_app")
+}
